@@ -1,8 +1,9 @@
 import * as THREE from 'three-full';
+import { initMaterials } from './Material';
 
-export function thecar(lightHolder, car, envMap, scene, carParts) {
+export function thecar(lightHolder, car, envMap, scene, carParts, camera) {
   THREE.DRACOLoader.setDecoderPath('draco/');
-  var loader = new THREE.GLTFLoader();
+  const loader = new THREE.GLTFLoader();
   loader.setDRACOLoader(new THREE.DRACOLoader());
   loader.load('models/gltf/ferrari.glb', function(gltf) {
     carModel = gltf.scene.children[0];
@@ -25,9 +26,13 @@ export function thecar(lightHolder, car, envMap, scene, carParts) {
         child.material.envMap = envMap;
       }
     });
+
+    console.log(loader);
     // shadow
-    var texture = new THREE.TextureLoader().load('models/gltf/ferrari_ao.png');
-    var shadow = new THREE.Mesh(
+    const texture = new THREE.TextureLoader().load(
+      'models/gltf/ferrari_ao.png'
+    );
+    const shadow = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(0.655 * 4, 1.3 * 4).rotateX(-Math.PI / 2),
       new THREE.MeshBasicMaterial({
         map: texture,
@@ -38,6 +43,7 @@ export function thecar(lightHolder, car, envMap, scene, carParts) {
     shadow.renderOrder = 2;
     carModel.add(shadow);
     scene.add(carModel);
+    camera.lookAt(carModel.position);
     // car parts for material selection
     carParts.body.push(carModel.getObjectByName('body'));
     carParts.rims.push(
@@ -47,6 +53,25 @@ export function thecar(lightHolder, car, envMap, scene, carParts) {
       carModel.getObjectByName('rim_rl'),
       carModel.getObjectByName('trim')
     );
+
+    const materialsLib = initMaterials(envMap);
     carParts.glass.push(carModel.getObjectByName('glass'));
+
+    const bodyMatSelect = document.getElementById('body-mat');
+    const rimMatSelect = document.getElementById('rim-mat');
+    const glassMatSelect = document.getElementById('glass-mat');
+
+    const bodyMat = materialsLib.main[bodyMatSelect.selectedIndex];
+    const rimMat = materialsLib.main[rimMatSelect.selectedIndex];
+    const glassMat = materialsLib.glass[glassMatSelect.selectedIndex];
+    carParts.body.forEach(function(part) {
+      part.material = bodyMat;
+    });
+    carParts.rims.forEach(function(part) {
+      part.material = rimMat;
+    });
+    carParts.glass.forEach(function(part) {
+      part.material = glassMat;
+    });
   });
 }

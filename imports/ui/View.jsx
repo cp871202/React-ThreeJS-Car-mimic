@@ -82,6 +82,8 @@ class View extends React.Component {
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
 
+  clock = new THREE.Clock();
+
   componentDidMount() {
     const camera = this.camera;
     camera.position.set(3.25, 2.0, -5);
@@ -128,8 +130,8 @@ class View extends React.Component {
     renderer.gammaOutput = true;
     renderer.shadowMap.enabled = true;
 
-    thecar(lightHolder, this.car, envMap, scene, this.carParts);
-
+    thecar(lightHolder, this.car, envMap, scene, this.carParts, camera);
+    // console.log(thecar(lightHolder, this.car, envMap, scene, this.carParts));
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const container = document.getElementById('container');
@@ -143,7 +145,7 @@ class View extends React.Component {
     return (
       <div>
         <Menu envMap={envMap} />
-        <div id='container' />
+        <div id="container" />
       </div>
     );
   }
