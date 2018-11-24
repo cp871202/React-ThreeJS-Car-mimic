@@ -1,7 +1,17 @@
 import * as THREE from 'three-full';
 import { initMaterials } from './Material';
 
-export function thecar(lightHolder, car, envMap, scene, carParts, camera) {
+export function thecar(
+  lightHolder,
+  car,
+  envMap,
+  scene,
+  carParts,
+  camera,
+  bodyIndex,
+  rimIndex,
+  glassIndex
+) {
   THREE.DRACOLoader.setDecoderPath('draco/');
   const loader = new THREE.GLTFLoader();
   loader.setDRACOLoader(new THREE.DRACOLoader());
@@ -27,7 +37,6 @@ export function thecar(lightHolder, car, envMap, scene, carParts, camera) {
       }
     });
 
-    console.log(loader);
     // shadow
     const texture = new THREE.TextureLoader().load(
       'models/gltf/ferrari_ao.png'
@@ -53,17 +62,12 @@ export function thecar(lightHolder, car, envMap, scene, carParts, camera) {
       carModel.getObjectByName('rim_rl'),
       carModel.getObjectByName('trim')
     );
-
     const materialsLib = initMaterials(envMap);
     carParts.glass.push(carModel.getObjectByName('glass'));
 
-    const bodyMatSelect = document.getElementById('body-mat');
-    const rimMatSelect = document.getElementById('rim-mat');
-    const glassMatSelect = document.getElementById('glass-mat');
-
-    const bodyMat = materialsLib.main[bodyMatSelect.selectedIndex];
-    const rimMat = materialsLib.main[rimMatSelect.selectedIndex];
-    const glassMat = materialsLib.glass[glassMatSelect.selectedIndex];
+    const bodyMat = materialsLib.main[bodyIndex];
+    const rimMat = materialsLib.main[rimIndex];
+    const glassMat = materialsLib.glass[glassIndex];
     carParts.body.forEach(function(part) {
       part.material = bodyMat;
     });

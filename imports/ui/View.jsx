@@ -2,8 +2,15 @@ import React from 'react';
 import * as THREE from 'three-full';
 import Menu from './Menu';
 import { thecar } from './Ferrari';
+import { initMaterials } from './Material';
 
 class View extends React.Component {
+  state = {
+    bodyIndex: 0,
+    rimIndex: 0,
+    glassIndex: 0
+  };
+
   //Camera
   camera = new THREE.PerspectiveCamera(
     50,
@@ -43,37 +50,12 @@ class View extends React.Component {
   clock = new THREE.Clock();
   car = new THREE.Car();
 
+  clock = new THREE.Clock();
+
   carParts = {
-    body: [
-      new THREE.MeshStandardMaterial({
-        color: 0xff4400,
-        envMap: this.envMap,
-        metalness: 0.9,
-        roughness: 0.2,
-        name: 'orange'
-      })
-    ],
-    rims: [
-      new THREE.MeshStandardMaterial({
-        color: 0xff4400,
-        envMap: this.envMap,
-        metalness: 0.9,
-        roughness: 0.2,
-        name: 'orange'
-      })
-    ],
-    glass: [
-      new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        envMap: this.envMap,
-        metalness: 0.9,
-        roughness: 0.1,
-        opacity: 0.15,
-        transparent: true,
-        premultipliedAlpha: true,
-        name: 'clear'
-      })
-    ]
+    body: [],
+    rims: [],
+    glass: []
   };
   damping = 5.0;
   distance = 5;
@@ -83,6 +65,59 @@ class View extends React.Component {
   renderer = new THREE.WebGLRenderer({ antialias: true });
 
   clock = new THREE.Clock();
+
+  bodyMatSelect = document.getElementById('body-mat');
+  rimMatSelect = document.getElementById('rim-mat');
+  glassMatSelect = document.getElementById('glass-mat');
+
+  // thecar = thecar(
+  //   this.lightHolder,
+  //   this.car,
+  //   this.envMap,
+  //   this.scene,
+  //   this.carParts,
+  //   this.camera,
+  //   this.state.bodyIndex,
+  //   this.state.rimIndex
+  // );
+
+  materialsLib = initMaterials(this.envMap);
+
+  changeMat = e => {
+    e.preventDefault();
+    const color = e.target.value;
+    this.materialsLib.main.forEach(mat => {
+      if (mat.name == color) {
+        return this.setState({
+          bodyIndex: this.materialsLib.main.indexOf(mat)
+        });
+      }
+    });
+  };
+
+  changeRim = e => {
+    e.preventDefault();
+    const color = e.target.value;
+    this.materialsLib.main.forEach(mat => {
+      if (mat.name == color) {
+        return this.setState({
+          rimIndex: this.materialsLib.main.indexOf(mat)
+        });
+      }
+    });
+  };
+
+  changeGlass = e => {
+    e.preventDefault();
+    const glassColor = e.target.value;
+    this.materialsLib.glass.forEach(mat => {
+      if (mat.name == glassColor) {
+        return this.setState({
+          glassIndex: this.materialsLib.glass.indexOf(mat)
+        });
+      }
+    });
+  };
 
   componentDidMount() {
     const camera = this.camera;
@@ -130,21 +165,39 @@ class View extends React.Component {
     renderer.gammaOutput = true;
     renderer.shadowMap.enabled = true;
 
-    thecar(lightHolder, this.car, envMap, scene, this.carParts, camera);
-    // console.log(thecar(lightHolder, this.car, envMap, scene, this.carParts));
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const container = document.getElementById('container');
+
     container.appendChild(renderer.domElement);
     renderer.setAnimationLoop(function() {
       renderer.render(scene, camera);
     });
   }
+
   render() {
-    const envMap = this.envMap;
+    thecar(
+      this.lightHolder,
+      this.car,
+      this.envMap,
+      this.scene,
+      this.carParts,
+      this.camera,
+      this.state.bodyIndex,
+      this.state.rimIndex,
+      this.state.glassIndex
+    );
     return (
       <div>
-        <Menu envMap={envMap} />
+        <Menu
+          materialsLib={this.materialsLib}
+          onChange={this.changeMat}
+          color={this.state.bodyIndex}
+          rimChange={this.changeRim}
+          rimCol={this.state.rimIndex}
+          glassChange={this.changeGlass}
+          glassCol={this.state.rimIndex}
+        />
         <div id="container" />
       </div>
     );

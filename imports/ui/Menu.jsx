@@ -2,8 +2,10 @@ import React from 'react';
 import * as THREE from 'three-full';
 import { initMaterials } from './Material';
 class Menu extends React.Component {
-  envMap = this.props;
-  materialsLib = initMaterials(this.envMap);
+  materialsLib = this.props.materialsLib;
+  color = this.props.color;
+  rimCol = this.props.rimCol;
+  glassCol = this.props.glassCol;
 
   addOption = (name, menu) => {
     const option = document.createElement('option');
@@ -27,22 +29,24 @@ class Menu extends React.Component {
     materialsLib.glass.forEach(function(material) {
       addOption(material.name, glassMatSelect);
     });
-    bodyMatSelect.selectedIndex = 2;
-    rimMatSelect.selectedIndex = 4;
-    glassMatSelect.selectedIndex = 0;
+
+    bodyMatSelect.selectedIndex = this.color;
+    rimMatSelect.selectedIndex = this.rimCol;
+    glassMatSelect.selectedIndex = this.glassCol;
   }
 
   render() {
+    const { onChange, rimChange, glassChange } = this.props;
     return (
       <div id="info">
         <span>
-          Body: <select id="body-mat" />
+          Body: <select id="body-mat" onChange={onChange} />
         </span>
         <span>
-          Rims / Trim: <select id="rim-mat" />
+          Rims / Trim: <select id="rim-mat" onChange={rimChange} />
         </span>
         <span>
-          Glass: <select id="glass-mat" />
+          Glass: <select id="glass-mat" onChange={glassChange} />
         </span>
 
         <span>
